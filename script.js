@@ -20,6 +20,11 @@ const header = document.querySelector('.header');
 const allSection = document.querySelectorAll('.section');
 const imgTargets = document.querySelectorAll('img[data-src]');
 
+const slides = document.querySelectorAll('.slide');
+const btnLeft = document.querySelector('.slider__btn--left');
+const btnRight = document.querySelector('.slider__btn--right');
+const dotContainer = document.querySelector('.dots');
+
 // CODE FOR OPENING AND CLOSING THE MODAL
 
 const openModal = function (e) {
@@ -174,10 +179,6 @@ imgTargets.forEach(img => imgObserver.observe(img));
 
 // SLIDER COMPONENT
 
-const slides = document.querySelectorAll('.slide');
-const btnLeft = document.querySelector('.slider__btn--left');
-const btnRight = document.querySelector('.slider__btn--right');
-
 let curSlide = 0;
 let maxSlide = slides.length - 1;
 
@@ -189,9 +190,8 @@ const goToSlide = function (slide) {
   );
 };
 
-goToSlide(0);
-
 // GOING TO NEXT SLIDE
+
 const nextSlide = function () {
   if (curSlide === maxSlide) {
     curSlide = 0;
@@ -200,6 +200,7 @@ const nextSlide = function () {
   }
 
   goToSlide(curSlide);
+  activateDot(curSlide);
 };
 
 const prevSlide = function () {
@@ -210,7 +211,55 @@ const prevSlide = function () {
   }
 
   goToSlide(curSlide);
+  activateDot(curSlide);
 };
 
 btnRight.addEventListener('click', nextSlide);
 btnLeft.addEventListener('click', prevSlide);
+
+// IMPLEMENTING KEYBOARD SLIDE EVENT
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'ArrowLeft') prevSlide();
+  else if (e.key === 'ArrowRight') nextSlide();
+});
+
+// IMPLEMENTING DOT BUTTON SLIDE EVENT
+// CREATING DOTS
+
+const createDots = function () {
+  slides.forEach((_, i) => {
+    dotContainer.insertAdjacentHTML(
+      'beforeend',
+      `<button class="dots__dot" data-slide="${i}"></button>`
+    );
+  });
+};
+
+dotContainer.addEventListener('click', function (e) {
+  if (e.target.classList.contains('dots__dot')) {
+    const { slide } = e.target.dataset;
+    goToSlide(slide);
+    activateDot(slide);
+  }
+});
+
+// CHANGING BACKGROUND COLOR FOR DOTS
+
+const activateDot = function (slide) {
+  document
+    .querySelectorAll('.dots__dot')
+    .forEach(dot => dot.classList.remove('dots__dot--active'));
+
+  document
+    .querySelector(`.dots__dot[data-slide="${slide}"]`)
+    .classList.add('dots__dot--active');
+};
+
+// INITIALIZING ALL FUNCTIONS
+const init = function () {
+  goToSlide(0);
+  createDots();
+  activateDot(0);
+};
+init();
